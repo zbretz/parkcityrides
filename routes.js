@@ -1,6 +1,8 @@
 const express = require('express');
 
 const dotenv = require('dotenv')
+dotenv.config(); // Load environment variables
+
 const router = require("express").Router();
 const path = require('path');
 router.use(express.urlencoded({ extended: true }));
@@ -24,6 +26,15 @@ router.get('/booking', (req, res) => {
 
 router.get('/account', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'account.html'));
+});
+
+// API endpoint to serve Google Maps API key securely
+router.get('/api/google-maps-key', (req, res) => {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'Google Maps API key not configured' });
+  }
+  res.json({ apiKey: apiKey });
 });
 
 
