@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Park City Rides – Complaint Reporting</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  <!-- Header -->
+  <header class="border-b border-gray-200 bg-gray-50">
+    <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
+      <a href="/" class="flex items-center gap-3" aria-label="Park City Rides Home">
+        <img src="/logo.png" alt="Park City Rides Logo" class="h-9 w-9 rounded-lg object-cover ring-1 ring-gray-300" />
+        <span class="text-lg font-semibold tracking-tight">Park City Rides</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-3xl px-4 py-10">
+    <h1 class="text-2xl font-bold">Complaint Reporting Procedure</h1>
+    <p class="mt-2 text-gray-700">
+      Passengers who suspect a driver is under the influence of drugs or alcohol may report the incident by:
+    </p>
+
+    <!-- In-Ride Help Box -->
+    <div class="mt-6 rounded-xl border border-gray-300 bg-gray-50 p-6 shadow-sm">
+      <h2 class="text-lg font-semibold">In-Ride Help (recommended)</h2>
+      <p class="mt-2 text-gray-700">
+        If you need help now, press the button below. This will alert Park City Rides, trigger a safety review,
+        and pause ride dispatching to the driver. <br />
+        <span class="font-medium text-red-600">In an emergency, call 911 first.</span>
+      </p>
+      <button class="mt-4 rounded-lg bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow hover:bg-red-700">
+        🚨 Get Help Now
+      </button>
+    </div>
+
+    <!-- Other methods -->
+    <ul class="mt-6 list-disc list-inside space-y-1 text-gray-700">
+      <li>Email: <a href="mailto:support@parkcityrides.com" class="underline text-blue-600">support@parkcityrides.com</a></li>
+      <li>Call the Park City Rides support line: <span class="font-medium">(917) 575-1955</span></li>
+    </ul>
+
+    <p class="mt-6 text-gray-700">
+      Park City Rides will review all complaints, investigate as needed, and remove drivers from service if found in violation. 
+      Where appropriate, violations will be reported to law enforcement.
+    </p>
+  </main>
+</body>
+</html>

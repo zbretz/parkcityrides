@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Park City Rides · Booking Flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="color-scheme" content="dark light" />
+  <!-- Google Maps API -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTBjSD9lnO2dmVBCt3Lm8LS3OhDckcrEI&libraries=geometry&callback=initGoogleMaps"></script>
+  <style>
+    :root{ --brand:#000; --bg:#fafafa; --card:#fff; --ink:#1a1a1a; --muted:#6a6a6a; --rule:#e6e6e6; --radius:16px; --shadow:0 6px 20px rgba(0,0,0,.08); }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:'Lexend',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--ink); background:var(--bg)}
+    .wrap{max-width:980px;margin:0 auto;padding:24px;display:grid;gap:18px}
+    header{display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:12px}
+    .mark{width:36px;height:36px;border-radius:9px;background:var(--brand);display:grid;place-items:center;font-weight:800;color:#111;box-shadow:var(--shadow)}
+    .badge{padding:6px 10px;border-radius:999px;background:#f1f1f1;color:var(--muted);font-size:12px;border:1px solid var(--rule)}
+
+    .progress{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0}
+    .step{height:8px;border-radius:999px;background:#eee;position:relative;overflow:hidden}
+    .step.fill::after{content:"";position:absolute;inset:0;background:var(--brand)}
+
+    .panel{background:var(--card);border:1px solid var(--rule);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .p{padding:18px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:760px){.row{grid-template-columns:1fr}}
+    label{font-size:13px;color:#333;display:block;margin-bottom:6px}
+    input[type=text],input[type=number],input[type=date],input[type=time],input[type=datetime-local],select{width:100%;padding:12px;border:1px solid var(--rule);border-radius:12px;background:#fff;font:inherit}
+    input[type=date],input[type=time]{cursor:pointer}
+    input[type=date]:focus,input[type=time]:focus{border-color:var(--brand);outline:none;box-shadow:0 0 0 3px rgba(0,0,0,0.1)}
+    .help{font-size:12px;color:var(--muted);margin-top:6px}
+    .map{height:200px;border:1px dashed var(--brand);border-radius:12px;display:grid;place-items:center;color:#666;background:linear-gradient(180deg,#fff,#f8f8f8)}
+    .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+    .btn{appearance:none;border:1px solid var(--rule);background:#fff;padding:12px 16px;border-radius:12px;cursor:pointer;font-weight:600}
+    .btn.brand{background:#fff;border-color:#000;color:#000}
+    .btn[disabled]{opacity:.5;cursor:not-allowed}
+
+    /* Final step panels reuse original styles */
+    .grid{display:grid;gap:18px}
+    .grid-2{grid-template-columns:1.1fr .9fr}
+    @media (max-width:840px){.grid-2{grid-template-columns:1fr}}
+    .panel .title{font-size:14px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:10px}
+    .itinerary{display:grid;gap:12px}
+    .leg{display:grid;grid-template-columns:28px 1fr;gap:12px}
+    .dotcol{display:flex;flex-direction:column;align-items:center}
+    .dot{width:12px;height:12px;border-radius:50%;background:var(--brand)}
+    .line{flex:1;width:2px;background:#ddd;margin:6px 0}
+    .addr{background:#f9f9f9;border:1px solid var(--rule);border-radius:14px;padding:12px 14px}
+    .addr strong{display:block;font-size:14px}
+    .meta{color:var(--muted);font-size:13px;margin-top:4px;display:flex;gap:10px;flex-wrap:wrap}
+    .options{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    @media (max-width:680px){.options{grid-template-columns:1fr}}
+    .opt{border-radius:16px;background:#fff;border:1px solid var(--rule);transition:border-color .18s,transform .12s,box-shadow .18s;cursor:pointer}
+    .opt:hover{transform:translateY(-2px)}
+    .opt.selected{border-color:var(--brand);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+    .opt-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #f0f0f0}
+    .opt-name{display:flex;align-items:center;gap:10px;font-weight:600}
+    .pill{font-size:12px;color:#000;background:#fff;border:1px solid #000;padding:4px 8px;border-radius:999px;font-weight:700}
+    .opt-body{padding:16px;display:grid;gap:10px}
+    .rowBetween{display:flex;align-items:center;justify-content:space-between}
+    .divider{height:1px;background:#e2e2e2;margin:4px 0}
+    .total{font-size:20px;font-weight:700;display:flex;align-items:baseline;justify-content:space-between}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <img src="/logo.png" alt="Park City Rides Logo" style="height: 32px; width: 32px; filter: grayscale(100%);" />
+        <div>
+          <div style="font-size:16px;line-height:1">Park City Rides</div>
+          <div class="text-xs text-[color:var(--muted)]">Booking flow</div>
+        </div>
+      </div>
+      <div class="badge" id="progressBadge">Step 1 of 4</div>
+    </header>
+
+    <!-- Small Welcome Message -->
+    <div style="color: var(--muted); font-size: 14px; margin-bottom: 8px;">Welcome, Test User</div>
+
+    <div class="progress" aria-hidden="true">
+      <div class="step fill" id="st1"></div>
+      <div class="step" id="st2"></div>
+      <div class="step" id="st3"></div>
+    </div>
+
+    <!-- Step 1: Locations -->
+    <section class="panel" data-step="1">
+      <div class="p">
+        <h2 class="m-0 mb-2 text-lg">Locations</h2>
+        <p class="text-sm text-[color:var(--muted)] mb-3">Enter pickup and drop‑off. (Distance is auto‑calculated in production.)</p>
+        <div class="row">
+          <div>
+            <label for="pickup">Pickup address</label>
+            <input id="pickup" type="text" placeholder="1200 Royal St, Park City, UT" required />
+          </div>
+          <div>
+            <label for="dropoff">Drop‑off address</label>
+            <input id="dropoff" type="text" placeholder="Salt Lake City International Airport (SLC)" required />
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn brand" id="to2">Next</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 2: Time & Riders -->
+    <section class="panel" data-step="2" hidden>
+      <div class="p">
+        <h2 class="m-0 mb-2 text-lg">Time & Riders</h2>
+        <div class="row">
+          <div>
+            <label for="date">Pickup date</label>
+            <input id="date" type="date" required />
+            <div class="help">Select your pickup date</div>
+          </div>
+          <div>
+            <label for="time">Pickup time</label>
+            <input id="time" type="time" required />
+            <div class="help">Select your pickup time</div>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="riders">Number of riders</label>
+            <input id="riders" type="number" min="1" max="6" value="1" />
+            <div class="help">XL for 4–6 riders or extra gear.</div>
+          </div>
+          <div>
+            <!-- Empty div for layout balance -->
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="back2">Back</button>
+          <button class="btn brand" id="to3">Next</button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Step 3: FINAL CONFIRMATION -->
+    <section data-step="3" hidden>
+      <!-- BEGIN EXACT FINAL PAGE MARKUP (unchanged visually) -->
+      <div class="grid grid-2">
+        <section class="panel">
+          <div class="p">
+            <div class="title">Your Trip</div>
+            <div class="itinerary" id="itineraryFinal">
+              <div class="leg">
+                <div class="dotcol"><span class="dot"></span><span class="line"></span></div>
+                <div class="addr">
+                  <strong id="pickupTitle">Pickup · 7:40 AM</strong>
+                  <div class="meta"><span id="pickupAddr">Deer Valley · 1200 Royal St, Park City, UT</span><span id="pickupWhenLabel">Today</span></div>
+                </div>
+              </div>
+              <div class="leg">
+                <div class="dotcol"><span class="dot" style="background:#7ad1a0"></span></div>
+                <div class="addr">
+                  <strong id="dropoffTitle">Drop-off</strong>
+                  <div class="meta"><span id="dropoffAddr">Salt Lake City International Airport (SLC)</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="height:16px"></div>
+            <div class="title">Choose a Ride</div>
+            <div class="options" id="options">
+              <article class="opt" data-id="standard" data-name="Standard" data-capacity="1–3" data-wait="2–4 min" tabindex="0" role="button" aria-pressed="false">
+                <div class="opt-hd">
+                  <div class="opt-name">Standard</div>
+                  <span class="pill" id="finalStandardPrice">Calculating...</span>
+                </div>
+                <div class="opt-body">
+                  <div class="rowBetween"><span>Capacity</span><span class="text-sm text-[color:var(--muted)]">1–3 riders</span></div>
+                  <div class="rowBetween"><span>Pickup</span><span class="text-sm text-[color:var(--muted)]">2–4 min</span></div>
+                  <div class="rowBetween"><span>Vehicle</span><span class="text-sm text-[color:var(--muted)]">Sedan/SUV</span></div>
+                </div>
+              </article>
+              <article class="opt" data-id="premium" data-name="Premium" data-capacity="1–3" data-wait="3–6 min" tabindex="0" role="button" aria-pressed="false">
+                <div class="opt-hd">
+                  <div class="opt-name">Premium</div>
+                  <span class="pill" id="finalPremiumPrice">Calculating...</span>
+                </div>
+                <div class="opt-body">
+                  <div class="rowBetween"><span>Capacity</span><span class="text-sm text-[color:var(--muted)]">1–3 riders (lux)</span></div>
+                  <div class="rowBetween"><span>Pickup</span><span class="text-sm text-[color:var(--muted)]">3–6 min</span></div>
+                  <div class="rowBetween"><span>Vehicle</span><span class="text-sm text-[color:var(--muted)]">Luxury SUV</span></div>
+                </div>
+              </article>
+              <article class="opt" data-id="xl" data-name="XL" data-capacity="1–5" data-wait="6–10 min" tabindex="0" role="button" aria-pressed="false">
+                <div class="opt-hd">
+                  <div class="opt-name">XL</div>
+                  <span class="pill" id="finalXLPrice">Calculating...</span>
+                </div>
+                <div class="opt-body">
+                  <div class="rowBetween"><span>Capacity</span><span class="text-sm text-[color:var(--muted)]">1–5 riders + gear</span></div>
+                  <div class="rowBetween"><span>Pickup</span><span class="text-sm text-[color:var(--muted)]">6–10 min</span></div>
+                  <div class="rowBetween"><span>Vehicle</span><span class="text-sm text-[color:var(--muted)]">Large SUV/Van</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <aside class="right-col">
+          <section class="panel">
+            <div class="p summary">
+              <div class="title">Fare Summary</div>
+              <div class="rowBetween"><span>Ride type</span><strong id="sumType">—</strong></div>
+              <div class="rowBetween"><span>Base fare</span><strong id="sumBase">—</strong></div>
+              <div class="divider"></div>
+              <div class="total"><span>Total</span><span id="sumTotal">—</span></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="p actions">
+              <button class="btn brand" id="back3">Back</button>
+              <button class="btn brand" id="confirmBtn" disabled>Confirm & Book</button>
+              <div class="text-xs text-[color:var(--muted)] mt-2 text-center">By tapping Confirm, you agree to our Terms and acknowledge the fare estimate above.</div>
+            </div>
+          </section>
+        </aside>
+      </div>
+      <!-- END EXACT FINAL PAGE MARKUP -->
+    </section>
+  </div>
+
+  <!-- No Drivers Modal -->
+  <div id="noDriversModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;padding:20px;z-index:1000">
+    <div style="background:#fff;border-radius:16px;padding:32px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.15)">
+      <div style="width:64px;height:64px;background:#f3f4f6;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 6v6l4 2"></path>
+        </svg>
+      </div>
+      <h3 style="margin:0 0 12px;font-size:20px;font-weight:600;color:#111">No Drivers Available</h3>
+      <p style="margin:0 0 24px;color:#6b7280;line-height:1.5">We have no drivers active at the moment.</p>
+      <button id="closeModal" style="background:#000;border:none;border-radius:12px;padding:12px 24px;font-weight:600;color:#fff;cursor:pointer;width:100%">Got it</button>
+    </div>
+  </div>
+
+  <script>
+    // ==== Utilities ====
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
+    const fmtUSD = n => `$${Number(n).toFixed(2).replace(/\.00$/, '')}`;
+    const fmtTime = d => new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit'}).format(d);
+    const fmtDate = d => new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',weekday:'short'}).format(d);
+
+    // ==== Google Maps Distance Calculation ====
+    let distanceService = null;
+    let directionsService = null;
+
+    function initGoogleMaps() {
+      if (typeof google === 'undefined') {
+        console.error('Google Maps API not loaded');
+        return;
+      }
+      
+      distanceService = new google.maps.DistanceMatrixService();
+      directionsService = new google.maps.DirectionsService();
+    }
+
+    // Check if address is in Utah
+    function isUtahAddress(address) {
+      const utahKeywords = ['utah', 'ut', 'salt lake', 'slc', 'park city', 'canyons', 'resort', 'deer valley', 'snowbird', 'alta', 'brighton', 'solitude', 'provo', 'ogden', 'st george', 'cedar city', 'moab', 'vernal', 'logan', 'brigham city', 'layton', 'west valley', 'west jordan', 'sandy', 'taylorsville', 'murray', 'riverton', 'draper', 'south jordan', 'herriman', 'eagle mountain', 'lehi', 'american fork', 'pleasant grove', 'orem', 'spanish fork', 'springville', 'mapleton', 'payson', 'nephi', 'fillmore', 'delta', 'richfield', 'price', 'helper', 'carbon county', 'emery county', 'grand county', 'san juan county', 'kane county', 'garfield county', 'wayne county', 'piute county', 'millard county', 'juab county', 'tooele county', 'summit county', 'wasatch county', 'duchesne county', 'uintah county', 'davis county', 'weber county', 'morgan county', 'box elder county', 'cache county', 'rich county', 'airport', 'international'];
+      
+      const addressLower = address.toLowerCase();
+      return utahKeywords.some(keyword => addressLower.includes(keyword));
+    }
+
+    function calculateDistance(origin, destination) {
+      return new Promise((resolve, reject) => {
+        if (!distanceService) {
+          reject('Google Maps not initialized');
+          return;
+        }
+
+        distanceService.getDistanceMatrix({
+          origins: [origin],
+          destinations: [destination],
+          travelMode: google.maps.TravelMode.DRIVING,
+          unitSystem: google.maps.UnitSystem.IMPERIAL,
+          avoidHighways: false,
+          avoidTolls: false
+        }, (response, status) => {
+          if (status === google.maps.DistanceMatrixStatus.OK) {
+            const result = response.rows[0].elements[0];
+            if (result.status === google.maps.DistanceMatrixElementStatus.OK) {
+              const distanceText = result.distance.text;
+              const distanceValue = result.distance.value; // in meters
+              const distanceMiles = distanceValue * 0.000621371; // convert to miles
+              resolve({
+                text: distanceText,
+                miles: distanceMiles,
+                meters: distanceValue
+              });
+            } else {
+              reject('Could not calculate distance');
+            }
+          } else {
+            reject('Distance calculation failed: ' + status);
+          }
+        });
+      });
+    }
+
+    // ==== Fare Calculation ====
+    function calculateFare(distanceMiles, pickupTime, rideType) {
+      const PER_MILE_RATE = 2.20;
+      const MINIMUM_FARE = 24.00;
+      const LATE_NIGHT_SURCHARGE = 30.00;
+      
+      // Base fare calculation
+      let baseFare = distanceMiles * PER_MILE_RATE;
+      
+      // Apply minimum fare
+      if (baseFare < MINIMUM_FARE) {
+        baseFare = MINIMUM_FARE;
+      }
+      
+      // Check for late night surcharge (11 PM - 5 AM)
+      let lateNightSurcharge = 0;
+      if (pickupTime) {
+        const hour = pickupTime.getHours();
+        if (hour >= 23 || hour < 5) {
+          lateNightSurcharge = LATE_NIGHT_SURCHARGE;
+        }
+      }
+      
+      // Ride type multipliers
+      let rideMultiplier = 1;
+      switch(rideType) {
+        case 'premium':
+          rideMultiplier = 1.3; // 30% premium
+          break;
+        case 'xl':
+          rideMultiplier = 1.6; // 60% premium for XL
+          break;
+        default:
+          rideMultiplier = 1;
+      }
+      
+      // Calculate total: (base fare + late night surcharge) * ride multiplier
+      const totalFare = (baseFare + lateNightSurcharge) * rideMultiplier;
+      
+      return {
+        baseFare: baseFare,
+        rideMultiplier: rideMultiplier,
+        lateNightSurcharge: lateNightSurcharge,
+        totalFare: totalFare,
+        distanceMiles: distanceMiles
+      };
+    }
+
+    function goto(step){
+      $$('section[data-step]').forEach(sec => sec.hidden = true);
+      $(`section[data-step="${step}"]`).hidden = false;
+      $('#progressBadge').textContent = `Step ${step} of 3`;
+      ['st1','st2','st3'].forEach((id,i)=>{ const el=$('#'+id); if(el) el.classList.toggle('fill', i < step); });
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    const state = { pickup:'', dropoff:'', distance: null, when: null, riders:1, tier:'standard' };
+
+    // Step 1
+    $('#to2').addEventListener('click', async () => {
+      const p=$('#pickup').value.trim(); const d=$('#dropoff').value.trim();
+      if(!p || !d) return alert('Please enter pickup and drop‑off.');
+
+      // Show loading state
+      const nextBtn = $('#to2');
+      const originalText = nextBtn.textContent;
+      nextBtn.textContent = 'Calculating...';
+      nextBtn.disabled = true;
+
+      try {
+        // Calculate distance using Google Maps
+        const distanceResult = await calculateDistance(p, d);
+        
+        // Check if distance is over 100 miles
+        if (distanceResult.miles > 100) {
+          return alert('Sorry, we cannot accommodate trips over 100 miles. Please choose a closer destination.');
+        }
+        
+        state.pickup = p;
+        state.dropoff = d;
+        state.distance = distanceResult.miles;
+        state.distanceText = distanceResult.text;
+
+        console.log(`Distance: ${distanceResult.text} (${distanceResult.miles.toFixed(2)} miles)`);
+        goto(2);
+      } catch (error) {
+        console.error('Distance calculation failed:', error);
+        alert('Could not calculate distance. Please check your addresses and try again.');
+      } finally {
+        // Restore button state
+        nextBtn.textContent = originalText;
+        nextBtn.disabled = false;
+      }
+    });
+
+    // Step 2
+    $('#back2').addEventListener('click', () => goto(1));
+    $('#to3').addEventListener('click', () => {
+      const dateVal=$('#date').value; const timeVal=$('#time').value; const riders=parseInt($('#riders').value||'1',10);
+      if(!dateVal) return alert('Please select pickup date.');
+      if(!timeVal) return alert('Please select pickup time.');
+      if(!(riders>0)) return alert('Enter number of riders.');
+      state.when = new Date(`${dateVal}T${timeVal}`); state.riders = riders; 
+      
+      // Update ride prices before going to final step
+      updateRidePrices();
+      hydrateFinal();
+      goto(3);
+    });
+
+
+    function computeTripMinutes(distance){ const mins = (distance/45)*60; return {low: Math.max(10, Math.round(mins*0.9)), high: Math.round(mins*1.1)}; }
+    function addMins(date, n){ const d=new Date(date.getTime()); d.setMinutes(d.getMinutes()+n); return d; }
+
+    // Update ride prices based on current state
+    function updateRidePrices() {
+      if (!state.distance || !state.when) {
+        console.log('Missing data for fare calculation:', { distance: state.distance, when: state.when });
+        return;
+      }
+      
+      console.log('Calculating fares for:', { 
+        distance: state.distance, 
+        time: state.when.toLocaleString(),
+        hour: state.when.getHours()
+      });
+      
+      const rideTypes = ['standard', 'premium', 'xl'];
+      rideTypes.forEach(rideType => {
+        const fare = calculateFare(state.distance, state.when, rideType);
+        console.log(`${rideType} fare:`, fare);
+        
+        const priceElement = document.getElementById(`${rideType}Price`);
+        if (priceElement) {
+          priceElement.textContent = `$${fare.totalFare.toFixed(0)}`;
+        }
+        
+        // Update data attributes for final step
+        const card = document.querySelector(`.opt[data-id="${rideType}"]`);
+        if (card) {
+          card.dataset.price = fare.totalFare.toFixed(0);
+          card.dataset.baseFare = fare.baseFare.toFixed(2);
+          card.dataset.lateNightSurcharge = fare.lateNightSurcharge.toFixed(2);
+          card.dataset.distanceMiles = fare.distanceMiles.toFixed(2);
+        }
+      });
+    }
+
+    // === Hydrate EXACT final page without changing its UI ===
+    function hydrateFinal(){
+      $('#progressBadge').textContent = 'Step 3 of 3';
+      
+      // Trip badges & itinerary text
+      const when = state.when || new Date();
+      $('#pickupTitle').textContent = `Pickup · ${fmtTime(when)}`;
+      $('#pickupAddr').textContent = state.pickup;
+      $('#pickupWhenLabel').textContent = fmtDate(when);
+      $('#dropoffAddr').textContent = state.dropoff;
+
+      // Update final step prices
+      const rideTypes = ['standard', 'premium', 'xl'];
+      rideTypes.forEach(rideType => {
+        const fare = calculateFare(state.distance, state.when, rideType);
+        const priceElement = document.getElementById(`final${rideType.charAt(0).toUpperCase() + rideType.slice(1)}Price`);
+        if (priceElement) {
+          priceElement.textContent = `$${fare.totalFare.toFixed(0)}`;
+        }
+      });
+
+      // Preselect first option by default
+      const pre = document.querySelector('.opt');
+      if(pre) selectCard(pre);
+    }
+
+    // === Final page behavior (copied semantics, no UI changes) ===
+    const sumType = $('#sumType');
+    const sumBase = $('#sumBase');
+    const sumTotal = $('#sumTotal');
+    const confirmBtn = $('#confirmBtn');
+    const back3 = $('#back3');
+    let selected = null;
+
+    function usd(n){ return `$${Number(n)}`; }
+
+    function recompute(){
+      if(!selected){ sumType.textContent='—'; sumBase.textContent='—'; sumTotal.textContent='—'; confirmBtn.disabled=true; return; }
+      const rideType = selected.dataset.id;
+      const rideName = selected.dataset.name;
+      const fare = calculateFare(state.distance, state.when, rideType);
+      
+      sumType.textContent = rideName;
+      sumBase.textContent = `$${fare.totalFare.toFixed(0)}`;
+      sumTotal.textContent = `$${fare.totalFare.toFixed(0)}`;
+      confirmBtn.disabled = false;
+    }
+
+    function selectCard(card){ if(selected) { selected.classList.remove('selected'); selected.setAttribute('aria-pressed','false'); }
+      selected = card; selected.classList.add('selected'); selected.setAttribute('aria-pressed','true'); recompute(); }
+
+    // delegate click/keyboard for cards (exists only on step 4)
+    document.addEventListener('click', (e)=>{ const card = e.target.closest && e.target.closest('.opt'); if(card) selectCard(card); });
+    document.addEventListener('keydown', (e)=>{ if((e.key==='Enter'||e.key===' ') && e.target.closest && e.target.closest('.opt')) { e.preventDefault(); selectCard(e.target.closest('.opt')); } });
+
+    back3 && back3.addEventListener('click', ()=> goto(2));
+
+    confirmBtn.addEventListener('click', () => {
+      if(!selected) return;
+      
+      // Show processing state
+      const originalText = confirmBtn.textContent;
+      confirmBtn.textContent = 'Processing...';
+      confirmBtn.disabled = true;
+      
+      // Simulate processing for 1 second
+      setTimeout(() => {
+        showNoDriversModal();
+        
+        // Reset button state
+        confirmBtn.textContent = originalText;
+        confirmBtn.disabled = false;
+      }, 1000);
+    });
+
+    // Set default date to today
+    const today = new Date();
+    const dateInput = document.getElementById('date');
+    const timeInput = document.getElementById('time');
+    
+    if (dateInput) {
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      dateInput.min = `${yyyy}-${mm}-${dd}`;
+      dateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+    
+    if (timeInput) {
+      timeInput.value = '09:00'; // Default to 9 AM
+    }
+
+    // Modal functions
+    function showNoDriversModal() {
+      const modal = document.getElementById('noDriversModal');
+      modal.style.display = 'flex';
+    }
+
+    function hideNoDriversModal() {
+      const modal = document.getElementById('noDriversModal');
+      modal.style.display = 'none';
+    }
+
+    // Modal event handlers
+    document.getElementById('closeModal').addEventListener('click', hideNoDriversModal);
+    document.getElementById('noDriversModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) hideNoDriversModal();
+    });
+
+    // Initialize Google Maps when API loads
+    window.initGoogleMaps = initGoogleMaps;
+    
+    // Check if Google Maps is already loaded
+    if (typeof google !== 'undefined') {
+      initGoogleMaps();
+    }
+
+    // init
+    goto(1);
+  </script>
+</body>
+</html>

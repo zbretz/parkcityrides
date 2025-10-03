@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Priya S. — Ski Instructor | The Park City App</title>
+<meta name="description" content="Book Priya S., a vetted Park City/Deer Valley ski instructor. Official resort lessons; instructor receives suggested gratuity. Chat pre‑trip and book instantly.">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --pc-yellow:#ffcf56; --ink:#0e1012; --sub:#5b616a; --bg:#fafafa; --card:#fff; --line:#ececef; --r:18px; --shadow:0 10px 24px rgba(15,23,42,.06), 0 2px 6px rgba(15,23,42,.05); }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;font-family:"Lexend",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.35}
+
+  /* NAV */
+  .nav{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+  .brand-badge{width:36px;height:36px;border-radius:50%;background:var(--pc-yellow);display:grid;place-items:center}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:999px;border:1px solid transparent;font-weight:600;cursor:pointer;transition:.18s ease;box-shadow:0 6px 14px rgba(0,0,0,.08)}
+  .btn-primary{background:var(--pc-yellow);color:#111;border-color:#d9ad37}
+  .btn-out{background:#fff;border:1px solid var(--line);color:#111}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:#111}
+  .btn-small{padding:10px 14px}
+
+  /* LAYOUT */
+  .wrap{max-width:1200px;margin:0 auto;padding:22px}
+  .grid{display:grid;gap:18px;grid-template-columns:repeat(12,1fr)}
+  .left{grid-column:span 12}
+  .right{grid-column:span 12}
+  @media (min-width:980px){ .left{grid-column:span 8} .right{grid-column:span 4; position:sticky; top:86px; align-self:start} }
+
+  /* MEDIA GALLERY */
+  .gallery{background:#000;border-radius:16px;overflow:hidden;position:relative}
+  .slide{height:420px;background:#111;background-position:center;background-size:cover}
+  @media (min-width:720px){ .slide{height:520px} }
+  .thumbs{display:flex;gap:8px;padding:10px;background:#0b0b0b}
+  .thumb{flex:1;height:72px;background-position:center;background-size:cover;border-radius:8px;opacity:.7;cursor:pointer;border:2px solid transparent}
+  .thumb.active{opacity:1;border-color:var(--pc-yellow)}
+  .gallery-nav{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 6px}
+  .navbtn{width:42px;height:42px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid var(--line);display:grid;place-items:center;cursor:pointer}
+
+  /* HEADER CARD */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+  .pad{padding:16px}
+  .hstack{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;border:1px solid var(--line);padding:6px 10px;background:#fff;font-weight:600;font-size:.9rem}
+  .badge.green{background:#e8f7ee;border-color:#c3ebd2;color:#165f37}
+  .badge.gold{background:#fff7df;border-color:#f1e0ac}
+  .muted{color:var(--sub)}
+
+  /* RATE CHART (Suggested Gratuity) */
+  .table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .table th,.table td{padding:14px;border-bottom:1px solid var(--line);text-align:left}
+  .table tr:last-child td{border-bottom:none}
+
+  /* BOOKING PANEL */
+  .panel{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+  .panel h3{margin:0 0 8px}
+  .field{display:grid;gap:6px;margin-bottom:12px}
+  .field label{font-weight:600}
+  .input, select, textarea{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;font:inherit}
+  textarea{min-height:88px;resize:vertical}
+  .total{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fff7df;font-weight:700}
+
+  /* NOTICE */
+  .notice{border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px}
+  .section h2{margin:0 0 8px;font-size:clamp(22px,2.6vw,28px)}
+
+  /* MINI LIST */
+  ul.clean{margin:10px 0;padding-left:18px}
+
+  /* FOOTER */
+  footer{border-top:1px solid var(--line);margin-top:40px}
+  .footer-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;padding:18px 22px;color:var(--sub);font-size:.95rem}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18l7-10 4 6 3-4 4 8H3z"></path></svg>
+      </div>
+      <span>The Park City App</span>
+    </div>
+    <div class="hstack">
+      <a class="btn btn-ghost btn-small" href="/services/ski">Browse Instructors</a>
+      <a class="btn btn-primary btn-small" href="#book">Book Now</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+    <!-- LEFT: media + about + rates -->
+    <section class="left">
+      <!-- MEDIA GALLERY -->
+      <div class="gallery card" aria-label="Media gallery">
+        <div id="heroSlide" class="slide" role="img" aria-label="Priya skiing with client" style="background-image:url('https://images.unsplash.com/photo-1530046226846-1f4f6f136a8b?auto=format&fit=crop&w=2000&q=80')"></div>
+        <div class="gallery-nav">
+          <button class="navbtn" id="prev" aria-label="Previous image">‹</button>
+          <button class="navbtn" id="next" aria-label="Next image">›</button>
+        </div>
+        <div class="thumbs" role="tablist" aria-label="Choose image">
+          <button class="thumb active" data-src="https://images.unsplash.com/photo-1530046226846-1f4f6f136a8b?auto=format&fit=crop&w=1400&q=80" role="tab" aria-selected="true" style="background-image:url('https://images.unsplash.com/photo-1530046226846-1f4f6f136a8b?auto=format&fit=crop&w=400&q=60')"></button>
+          <button class="thumb" data-src="https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=1400&q=80" role="tab" aria-selected="false" style="background-image:url('https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=400&q=60')"></button>
+          <button class="thumb" data-src="https://images.unsplash.com/photo-1516054719048-38394ee7bc22?auto=format&fit=crop&w=1400&q=80" role="tab" aria-selected="false" style="background-image:url('https://images.unsplash.com/photo-1516054719048-38394ee7bc22?auto=format&fit=crop&w=400&q=60')"></button>
+        </div>
+      </div>
+
+      <!-- HEADER CARD: name, badges -->
+      <div class="card pad" style="margin-top:14px">
+        <div class="hstack" style="justify-content:space-between">
+          <div>
+            <h1 style="margin:0">Priya S.</h1>
+            <div class="muted">PSIA Level III • 9 years experience</div>
+          </div>
+          <div class="hstack">
+            <span class="badge gold" title="Official resort lessons">Official</span>
+            <span class="badge" title="Park City Mountain and Deer Valley">Park City</span>
+            <span class="badge" title="Park City Mountain and Deer Valley">Deer Valley</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABOUT -->
+      <section class="card pad" style="margin-top:14px">
+        <h2 class="section">About Priya</h2>
+        <p>High‑level technique and carving refinement; expert DV routes. Focus on balance, edge control, and confidence on steeps. Great with advanced intermediates looking to break through plateaus.</p>
+        <div class="hstack" style="margin-top:8px">
+          <span class="badge">Advanced</span>
+          <span class="badge">Carving</span>
+          <span class="badge">Women‑led</span>
+          <span class="badge">Deer Valley</span>
+        </div>
+        <ul class="clean">
+          <li>Resorts: Park City Mountain & Deer Valley</li>
+          <li>Ages: 10+</li>
+          <li>Disciplines: Ski (no snowboard)</li>
+        </ul>
+        <div class="notice" style="margin-top:10px">
+          <strong>Official & Above‑Board</strong>
+          <p class="muted" style="margin:6px 0 0">All lessons are arranged through the resort; the resort receives their lesson fee. Your instructor receives a <em>suggested gratuity</em> (set below). Already booked with the resort? Tell us and we’ll handle instructor assignment and coordination. Preferred: we set up the lesson so we can match you perfectly.</p>
+        </div>
+      </section>
+
+      <!-- RATE CHART (Suggested Gratuity) -->
+      <section class="card pad" style="margin-top:14px">
+        <h2 class="section">Suggested Gratuity</h2>
+        <p class="muted">Final gratuity is up to you and shown before you confirm. Resort lesson fees are handled directly with the resort.</p>
+        <div style="overflow-x:auto;margin-top:10px">
+          <table class="table" aria-label="Suggested gratuity chart">
+            <thead>
+              <tr>
+                <th>Lesson Type</th>
+                <th>Duration</th>
+                <th>Party Size</th>
+                <th>Suggested Gratuity</th>
+              </tr>
+            </thead>
+            <tbody id="rateRows">
+              <!-- filled by JS from RATE_TABLE -->
+            </tbody>
+          </table>
+        </div>
+        <div class="hstack" style="margin-top:10px;gap:8px">
+          <span class="badge">Park City Mountain</span>
+          <span class="badge">Deer Valley</span>
+        </div>
+      </section>
+    </section>
+
+    <!-- RIGHT: booking panel -->
+    <aside class="right" id="book">
+      <div class="panel pad">
+        <h3>Book with Priya</h3>
+        <div class="field">
+          <label for="date">Date</label>
+          <input id="date" class="input" type="date">
+        </div>
+        <div class="field">
+          <label for="time">Start Time</label>
+          <input id="time" class="input" type="time" value="09:00">
+        </div>
+        <div class="field">
+          <label for="resort">Resort</label>
+          <select id="resort">
+            <option value="parkcity">Park City Mountain</option>
+            <option value="deervalley" selected>Deer Valley</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="duration">Duration</label>
+          <select id="duration">
+            <option value="2">2 hours</option>
+            <option value="3">3 hours</option>
+            <option value="4" selected>Half‑day (4h)</option>
+            <option value="6">Full‑day (6h)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="party">Party Size</label>
+          <select id="party">
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ability">Ability</label>
+          <select id="ability">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced" selected>Advanced</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="notes">Notes (goals, meeting point)</label>
+          <textarea id="notes" placeholder="Carving focus, DV — Empire Express at 9:15…"></textarea>
+        </div>
+        <div class="total"><span>Suggested Gratuity Total</span><span id="total">—</span></div>
+        <div class="hstack" style="margin-top:12px">
+          <a id="bookNow" class="btn btn-primary" href="#">Book Lesson</a>
+          <a id="message" class="btn btn-out" href="#">Message Priya</a>
+        </div>
+        <p class="muted" style="margin:10px 0 0;font-size:.92rem">By booking, you agree that the lesson will be scheduled through the resort and the gratuity will be paid to your instructor via The Park City App.</p>
+      </div>
+      <div class="notice" style="margin-top:12px">
+        <strong>Questions?</strong>
+        <p class="muted" style="margin:6px 0 0">Have a lesson already booked? Share the reservation and we’ll handle the rest — matching, pre‑lesson intro, and day‑of coordination.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-row">
+    <div>© <span id="year"></span> The Park City App</div>
+    <div class="hstack"><a href="/privacy">Privacy</a><span aria-hidden="true">•</span><a href="/terms">Terms</a><span aria-hidden="true">•</span><a href="/contact">Contact</a></div>
+  </div>
+</footer>
+
+<script>
+  // Year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Set min date to today (local)
+  const dateInput = document.getElementById('date');
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const dd = String(today.getDate()).padStart(2,'0');
+  dateInput.min = `${yyyy}-${mm}-${dd}`;
+
+  // Simple gallery
+  const hero = document.getElementById('heroSlide');
+  const thumbs = Array.from(document.querySelectorAll('.thumb'));
+  let idx = 0;
+  function setSlide(i){
+    idx = (i+thumbs.length)%thumbs.length;
+    thumbs.forEach((t,j)=>{ t.classList.toggle('active', j===idx); t.setAttribute('aria-selected', j===idx ? 'true':'false'); });
+    hero.style.backgroundImage = `url('${thumbs[idx].dataset.src}')`;
+  }
+  thumbs.forEach((t,i)=> t.addEventListener('click', ()=> setSlide(i)) );
+  document.getElementById('prev').addEventListener('click', ()=> setSlide(idx-1));
+  document.getElementById('next').addEventListener('click', ()=> setSlide(idx+1));
+
+  // Suggested gratuity logic — per‑instructor table (example values)
+  // Customize these per instructor/resort
+  const RATE_TABLE = {
+    parkcity: {
+      1: { 2: 120, 3: 160, 4: 200, 6: 280 },
+      2: { 2: 140, 3: 180, 4: 220, 6: 300 },
+      3: { 2: 160, 3: 200, 4: 240, 6: 320 },
+      4: { 2: 180, 3: 220, 4: 260, 6: 340 }
+    },
+    deervalley: {
+      1: { 2: 140, 3: 180, 4: 230, 6: 320 },
+      2: { 2: 160, 3: 200, 4: 250, 6: 340 },
+      3: { 2: 180, 3: 220, 4: 270, 6: 360 },
+      4: { 2: 200, 3: 240, 4: 290, 6: 380 }
+    }
+  };
+
+  function buildRateTable(){
+    const body = document.getElementById('rateRows');
+    body.innerHTML = '';
+    const partySizes = [1,2,3,4];
+    const durations = [2,3,4,6];
+    const resort = document.getElementById('resort').value;
+    partySizes.forEach(size=>{
+      durations.forEach(dur=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${size===1?'Private (Ski)':'Family Lesson'}</td>`+
+                       `<td>${dur===4?'Half‑day (4h)': dur===6?'Full‑day (6h)': dur+ ' hours'}</td>`+
+                       `<td>${size}</td>`+
+                       `<td><strong>$${RATE_TABLE[resort][size][dur]}</strong></td>`;
+        body.appendChild(tr);
+      })
+    });
+  }
+  buildRateTable();
+
+  // Update total suggestion in panel and link
+  const resortSel = document.getElementById('resort');
+  const durSel = document.getElementById('duration');
+  const partySel = document.getElementById('party');
+  const totalEl = document.getElementById('total');
+  function updateTotal(){
+    const resort = resortSel.value;
+    const dur = parseInt(durSel.value,10);
+    const size = parseInt(partySel.value,10);
+    const amt = RATE_TABLE[resort][size][dur];
+    totalEl.textContent = amt ? `$${amt}` : '—';
+  }
+  [resortSel,durSel,partySel].forEach(el=> el.addEventListener('change', ()=>{ updateTotal(); buildRateTable(); }));
+  updateTotal();
+
+  // Build booking link with query params
+  function buildLink(){
+    const params = new URLSearchParams({
+      instructor: 'priya',
+      resort: resortSel.value,
+      date: dateInput.value,
+      time: document.getElementById('time').value,
+      duration: durSel.value,
+      party: partySel.value,
+      ability: document.getElementById('ability').value
+    }).toString();
+    return `/book/ski?${params}`; // swap with real route
+  }
+  const bookBtn = document.getElementById('bookNow');
+  const msgBtn  = document.getElementById('message');
+  function refreshLinks(){ const url = buildLink(); bookBtn.href = url; msgBtn.href = url + '&mode=message'; }
+  ['change','input'].forEach(ev=> document.querySelector('.panel').addEventListener(ev, refreshLinks));
+  refreshLinks();
+</script>
+</body>
+</html>

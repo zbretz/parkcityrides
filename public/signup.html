@@ -20,6 +20,9 @@
              class="h-9 w-9 rounded-2xl ring-1 ring-white/15 object-cover" />
         <span class="text-lg font-semibold tracking-tight">Park City Rides</span>
       </a>
+      <button id="testAccountBtn" class="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/15">
+        Test Account
+      </button>
     </div>
   </header>
 
@@ -337,6 +340,11 @@
         notice.textContent = 'We were not able to store the card. Please call support and we’ll get you set up right away.';
         notice.classList.remove('hidden');
       }, 1200);
+    });
+
+    // Test Account button functionality
+    document.getElementById('testAccountBtn').addEventListener('click', () => {
+      window.location.href = '/account';
     });
   </script>
 </body>

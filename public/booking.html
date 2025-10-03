@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Park City Rides · Final Booking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="color-scheme" content="dark light">
+  <style>
+    :root {
+      --brand: #ffcf56;
+      --bg: #fafafa;
+      --card: #ffffff;
+      --muted: #6a6a6a;
+      --text: #1a1a1a;
+      --ring: rgba(255, 207, 86, 0.45);
+      --shadow: 0 4px 16px rgba(0,0,0,.08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Lexend', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 24px; display: grid; gap: 18px; }
+    header { display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; }
+    .brand-mark { width: 36px; height: 36px; border-radius: 9px; background: var(--brand); display: grid; place-items: center; color: #1a1a1a; font-weight: 800; box-shadow: var(--shadow); }
+    .badge { padding: 6px 10px; border-radius: 999px; background: #f1f1f1; color: var(--muted); font-size: 12px; border: 1px solid #e2e2e2; }
+
+    .grid { display: grid; gap: 18px; }
+    .grid-2 { grid-template-columns: 1.1fr .9fr; }
+    @media (max-width: 840px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .panel { background: var(--card); border: 1px solid #e2e2e2; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .panel > .p { padding: 18px; }
+    .panel .title { font-size: 14px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 10px; }
+
+    .itinerary { display: grid; gap: 12px; }
+    .leg { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+    .dotcol { display: flex; flex-direction: column; align-items: center; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--brand); }
+    .line { flex: 1; width: 2px; background: #ddd; margin: 6px 0; }
+    .addr { background: #f9f9f9; border: 1px solid #e2e2e2; border-radius: 14px; padding: 12px 14px; }
+    .addr strong { display: block; font-size: 14px; }
+    .meta { color: var(--muted); font-size: 13px; margin-top: 4px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 680px) { .options { grid-template-columns: 1fr; } }
+    .opt { border-radius: 16px; background: #fff; border: 1px solid #e2e2e2; transition: border-color .18s ease, transform .12s ease, box-shadow .18s ease; cursor: pointer; }
+    .opt:hover { transform: translateY(-2px); }
+    .opt.selected { border-color: var(--brand); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .opt-hd { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #f0f0f0; }
+    .opt-name { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+    .pill { font-size: 12px; color: #111; background: var(--brand); padding: 4px 8px; border-radius: 999px; font-weight: 700; }
+    .opt-body { padding: 16px; display: grid; gap: 10px; }
+    .row { display: flex; align-items: center; justify-content: space-between; font-size: 14px; }
+    .row .sub { color: var(--muted); font-size: 12px; }
+
+    .summary { display: grid; gap: 10px; }
+    .divider { height: 1px; background: #e2e2e2; margin: 4px 0; }
+    .total { font-size: 20px; font-weight: 700; display: flex; align-items: baseline; justify-content: space-between; }
+
+    button.cta { border: none; cursor: pointer; border-radius: 14px; padding: 16px 18px; font-weight: 700; background: var(--brand); color: #1a1a1a; font-size: 16px; box-shadow: var(--shadow); }
+    button.cta:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .map { border-radius: 14px; height: 220px; background: #f0f0f0; border: 1px solid #e2e2e2; display: grid; place-items: center; color: var(--muted); }
+    .footer-note { color: var(--muted); font-size: 12px; text-align: center; margin-top: 8px; }
+    .right-col { display: grid; gap: 18px; align-content: start; }
+    .mini { font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <img src="/logo.png" alt="Park City Rides Logo"
+        class="h-9 w-9 rounded-2xl ring-1 ring-white/15 object-cover">        <div>
+          <div style="font-size:16px; line-height:1;">Park City Rides</div>
+          <div class="mini">Final booking</div>
+        </div>
+      </div>
+      <div class="badge" id="tripLength">~45–55 min</div>
+    </header>
+
+    <div class="grid grid-2">
+      <section class="panel">
+        <div class="p">
+          <div class="title">Your Trip</div>
+          <div class="itinerary" id="itinerary">
+            <div class="leg">
+              <div class="dotcol"><span class="dot"></span><span class="line"></span></div>
+              <div class="addr">
+                <strong id="pickupTitle">Pickup · 7:40 AM</strong>
+                <div class="meta"><span id="pickupAddr">Deer Valley · 1200 Royal St, Park City, UT</span><span>Today</span></div>
+              </div>
+            </div>
+            <div class="leg">
+              <div class="dotcol"><span class="dot" style="background:#7ad1a0"></span></div>
+              <div class="addr">
+                <strong id="dropoffTitle">Drop-off</strong>
+                <div class="meta"><span id="dropoffAddr">Salt Lake City International Airport (SLC)</span><span>ETA ~8:35–8:45 AM</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="height:14px"></div>
+          <!-- <div class="map">Route preview</div> -->
+
+          <div style="height:16px"></div>
+          <div class="title">Choose a Ride</div>
+          <div class="options" id="options">
+            <article class="opt" data-id="standard" data-price="88" data-name="Standard" data-capacity="1–3" data-wait="2–4 min" data-eta="8:35–8:45 AM">
+              <div class="opt-hd">
+                <div class="opt-name">Standard</div>
+                <span class="pill">$88</span>
+              </div>
+              <div class="opt-body">
+                <div class="row"><span>Capacity</span><span class="sub">1–3 riders</span></div>
+                <div class="row"><span>Pickup</span><span class="sub">2–4 min</span></div>
+                <div class="row"><span>Airport ETA</span><span class="sub">8:35–8:45 AM</span></div>
+              </div>
+            </article>
+            <article class="opt" data-id="premium" data-price="115" data-name="Premium" data-capacity="1–3" data-wait="3–6 min" data-eta="8:33–8:42 AM">
+              <div class="opt-hd">
+                <div class="opt-name">Premium</div>
+                <span class="pill">$115</span>
+              </div>
+              <div class="opt-body">
+                <div class="row"><span>Capacity</span><span class="sub">1–3 riders (lux)</span></div>
+                <div class="row"><span>Pickup</span><span class="sub">3–6 min</span></div>
+                <div class="row"><span>Airport ETA</span><span class="sub">8:33–8:42 AM</span></div>
+              </div>
+            </article>
+            <article class="opt" data-id="xl" data-price="145" data-name="XL" data-capacity="1–5" data-wait="6–10 min" data-eta="8:36–8:48 AM">
+              <div class="opt-hd">
+                <div class="opt-name">XL</div>
+                <span class="pill">$145</span>
+              </div>
+              <div class="opt-body">
+                <div class="row"><span>Capacity</span><span class="sub">1–5 riders + gear</span></div>
+                <div class="row"><span>Pickup</span><span class="sub">6–10 min</span></div>
+                <div class="row"><span>Airport ETA</span><span class="sub">8:36–8:48 AM</span></div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <aside class="right-col">
+        <section class="panel">
+          <div class="p summary">
+            <div class="title">Fare Summary</div>
+            <div class="row"><span>Ride type</span><strong id="sumType">—</strong></div>
+            <div class="row"><span>Base fare</span><strong id="sumBase">—</strong></div>
+            <div class="row"><span>Estimated arrival</span><strong id="sumEta">—</strong></div>
+            <div class="divider"></div>
+            <div class="total"><span>Total</span><span id="sumTotal">—</span></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="p actions">
+            <button class="cta" id="confirmBtn" disabled>Confirm & Book</button>
+            <div class="footer-note">By tapping Confirm, you agree to our Terms and acknowledge the fare estimate above.</div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const options = document.querySelectorAll('.opt');
+    const sumType = document.getElementById('sumType');
+    const sumBase = document.getElementById('sumBase');
+    const sumTotal = document.getElementById('sumTotal');
+    const sumEta = document.getElementById('sumEta');
+    const confirmBtn = document.getElementById('confirmBtn');
+    let selected = null;
+
+    function usd(n){ return `$${n}`; }
+
+    function recompute(){
+      if(!selected){
+        sumType.textContent = '—';
+        sumBase.textContent = '—';
+        sumTotal.textContent = '—';
+        sumEta.textContent = '—';
+        confirmBtn.disabled = true;
+        return;
+      }
+      const base = Number(selected.dataset.price);
+      sumType.textContent = selected.dataset.name;
+      sumBase.textContent = usd(base);
+      sumTotal.textContent = usd(base);
+      sumEta.textContent = selected.dataset.eta;
+      confirmBtn.disabled = false;
+    }
+
+    function selectCard(card){
+      if(selected) selected.classList.remove('selected');
+      selected = card;
+      selected.classList.add('selected');
+      recompute();
+    }
+
+    options.forEach(card => {
+      card.addEventListener('click', () => selectCard(card));
+    });
+
+    confirmBtn.addEventListener('click', () => {
+      if(!selected) return;
+      console.log('BOOKING CONFIRMED', selected.dataset);
+      confirmBtn.textContent = 'Booked ✓';
+      confirmBtn.disabled = true;
+    });
+
+    selectCard(document.querySelector('[data-id="standard"]'));
+  </script>
+</body>
+</html>

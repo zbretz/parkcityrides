@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Choose a Driver — The Park City App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --pc-yellow:#ffcf56; --ink:#0e1012; --sub:#5b616a; --bg:#fff; --bg-soft:#f7f8fa; --line:#ececef; --card:#fff; --r:18px;
+      --shadow:0 10px 24px rgba(15,23,42,.06), 0 2px 6px rgba(15,23,42,.05);
+      --blue-50:#eef6ff; --green-50:#ecfdf5; --brown-50:#f7f2ec;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:"Lexend",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+    a{color:inherit;text-decoration:none}
+
+    /* Header */
+    .topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+    .topbar-inner{max-width:1100px;margin:0 auto;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand-compact{display:flex;align-items:center;gap:10px}
+    .brand-badge{width:38px;height:38px;border-radius:12px;background:var(--pc-yellow);display:grid;place-items:center;box-shadow:var(--shadow)}
+    .brand-mark{font-weight:800}
+    .audience-toggle{display:flex;gap:0;background:var(--bg-soft);border:1px solid var(--line);border-radius:999px;padding:4px}
+    .seg{appearance:none;border:0;background:transparent;padding:8px 12px;border-radius:999px;font-weight:800;color:var(--sub);cursor:pointer}
+    .seg.is-active{background:#fff;color:#111;box-shadow:var(--shadow)}
+
+    .container{max-width:1100px;margin:0 auto;padding:16px}
+
+    /* Heading & filters */
+    .page-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 10px}
+    .title{margin:0;font-size:22px;font-weight:800}
+    .filters{display:flex;gap:10px;flex-wrap:wrap}
+    .chip{background:var(--bg-soft);border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-weight:800;color:#333;cursor:pointer}
+    .chip[aria-pressed="true"]{background:#fff;box-shadow:var(--shadow)}
+    .select{height:40px;border:1px solid var(--line);border-radius:10px;padding:0 10px;font-weight:700}
+
+    /* Drivers list */
+    .drivers{display:grid;grid-template-columns:1fr;gap:12px;margin-top:10px}
+    .driver{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:var(--shadow)}
+    .avatar{width:70px;height:70px;border-radius:16px;overflow:hidden;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.08);background:linear-gradient(180deg,var(--blue-50),#fff)}
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    .driver h3{margin:0;font-size:18px;font-weight:800}
+    .meta{color:var(--sub);font-size:13px}
+    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .badge{background:var(--bg-soft);border:1px solid var(--line);padding:4px 8px;border-radius:999px;font-weight:700;font-size:12px}
+    .veh{font-weight:700}
+    .cta-col{display:grid;gap:8px;justify-items:end}
+    .price{font-weight:800}
+    .choose{background:var(--pc-yellow);border:1px solid #d9ad37;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}
+    .ghost{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer}
+
+    .load{display:block;margin:14px auto 0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-weight:800}
+
+    @media (min-width:880px){
+      .drivers{gap:14px}
+    }
+
+    footer{border-top:1px solid var(--line);margin-top:28px}
+    .footer-row{max-width:1100px;margin:0 auto;padding:14px 16px;color:var(--sub);display:flex;justify-content:space-between;flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="topbar" aria-label="Primary">
+    <div class="topbar-inner">
+      <div class="brand-compact">
+        <div class="brand-badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18l7-10 4 6 3-4 4 8H3z"></path></svg>
+        </div>
+        <div class="brand-mark">The Park City App</div>
+      </div>
+      <div class="audience-toggle" role="tablist" aria-label="Audience">
+        <button class="seg is-active" role="tab" aria-selected="true" id="aud-local">Local</button>
+        <button class="seg" role="tab" aria-selected="false" id="aud-visitor">Visitor</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-head">
+      <h1 class="title">Choose a Driver</h1>
+      <div class="filters" role="toolbar" aria-label="Filters">
+        <select id="sort" class="select" aria-label="Sort by">
+          <option value="best">Best match</option>
+          <option value="rating">Rating</option>
+          <option value="price">Price</option>
+          <option value="eta">ETA</option>
+        </select>
+        <button class="chip" data-filter="awd" aria-pressed="false">AWD</button>
+        <button class="chip" data-filter="ski" aria-pressed="false">Ski rack</button>
+        <button class="chip" data-filter="seat" aria-pressed="false">Car seat</button>
+        <button class="chip" data-filter="lux" aria-pressed="false">Luxury</button>
+        <button class="chip" data-filter="suv" aria-pressed="false">SUV</button>
+      </div>
+    </div>
+
+    <section class="drivers" id="drivers" aria-label="Driver results">
+      <!-- Cards injected by JS below -->
+    </section>
+
+    <button class="load" id="loadMore">Load more</button>
+  </main>
+
+  <footer>
+    <div class="footer-row">
+      <div>© <span id="year"></span> The Park City App</div>
+      <div><a href="/privacy">Privacy</a> • <a href="/terms">Terms</a> • <a href="/contact">Contact</a></div>
+    </div>
+  </footer>
+
+  <script>
+    // Audience toggle
+    const localBtn=document.getElementById('aud-local');
+    const visitorBtn=document.getElementById('aud-visitor');
+    function setAudience(which){
+      const v=which==='visitor';
+      localBtn.classList.toggle('is-active',!v); localBtn.setAttribute('aria-selected',String(!v));
+      visitorBtn.classList.toggle('is-active',v); visitorBtn.setAttribute('aria-selected',String(v));
+      document.body.dataset.audience=which;
+    }
+    localBtn.addEventListener('click',()=>setAudience('local'));
+    visitorBtn.addEventListener('click',()=>setAudience('visitor'));
+
+    // Mock data (replace with API)
+    const ALL=[
+      {id:'d1',name:'Alex S.',rating:4.95,eta:12,price:68,veh:'Subaru Outback (AWD)',flags:['awd','ski','seat'],img:'https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=300&q=60',trips:842},
+      {id:'d2',name:'Maya R.',rating:4.98,eta:9, price:82,veh:'Chevy Tahoe (SUV)',flags:['awd','suv'],img:'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=60',trips:1120},
+      {id:'d3',name:'Chris P.',rating:4.92,eta:15,price:120,veh:'Mercedes GLS (Luxury)',flags:['awd','lux'],img:'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=300&q=60',trips:506},
+      {id:'d4',name:'Ivy L.', rating:4.97,eta:18,price:95,veh:'Honda Odyssey (Van)',flags:['seat'],img:'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?auto=format&fit=crop&w=300&q=60',trips:951},
+      {id:'d5',name:'Sam T.', rating:4.90,eta:11,price:70,veh:'Toyota Highlander (AWD)',flags:['awd','suv','ski'],img:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=60',trips:721},
+      {id:'d6',name:'Nora F.', rating:4.99,eta:7, price:135,veh:'BMW X7 (Luxury)',flags:['awd','lux','suv'],img:'https://images.unsplash.com/photo-1541534401786-2077eed87a72?auto=format&fit=crop&w=300&q=60',trips:1332}
+    ];
+
+    const driversEl=document.getElementById('drivers');
+    const chips=[...document.querySelectorAll('.chip')];
+    const sortSel=document.getElementById('sort');
+    const loadBtn=document.getElementById('loadMore');
+
+    let active=new Set();
+    let page=1; const PAGE=4;
+
+    function render(list){
+      driversEl.innerHTML='';
+      list.slice(0,page*PAGE).forEach(d=>{
+        driversEl.insertAdjacentHTML('beforeend',cardHTML(d));
+      });
+      loadBtn.style.display = list.length>page*PAGE ? 'block':'none';
+    }
+
+    function cardHTML(d){
+      const badgeHTML = d.flags.map(f=>`<span class="badge">${labelFor(f)}</span>`).join('');
+      return `
+        <article class="driver" data-id="${d.id}">
+          <div class="avatar">${d.img?`<img src="${d.img}" alt="${d.name}">`:'👤'}</div>
+          <div>
+            <h3>${d.name} • ★ ${d.rating.toFixed(2)}</h3>
+            <div class="meta">${d.trips.toLocaleString()} trips • <span class="veh">${d.veh}</span></div>
+            <div class="badges">${badgeHTML}</div>
+          </div>
+          <div class="cta-col">
+            <div class="price">$${d.price} est.</div>
+            <button class="ghost" data-profile="${d.id}">Profile</button>
+            <button class="choose" data-choose="${d.id}">Choose</button>
+          </div>
+        </article>`
+    }
+
+    function labelFor(f){
+      return {awd:'AWD',ski:'Ski rack',seat:'Car seat',lux:'Luxury',suv:'SUV'}[f]||f;
+    }
+
+    function apply(){
+      let list=[...ALL];
+      if(active.size){
+        list=list.filter(d=>[...active].every(f=>d.flags.includes(f)));
+      }
+      const sort=sortSel.value;
+      list.sort((a,b)=>{
+        if(sort==='rating') return b.rating-a.rating;
+        if(sort==='price') return a.price-b.price;
+        if(sort==='eta') return a.eta-b.eta;
+        return (b.rating*1000-b.price) - (a.rating*1000-a.price); // rough "best match"
+      });
+      page=1; render(list);
+    }
+
+    chips.forEach(ch=>{
+      ch.addEventListener('click',()=>{
+        const key=ch.dataset.filter; const on=ch.getAttribute('aria-pressed')==='true';
+        ch.setAttribute('aria-pressed', String(!on));
+        if(on) active.delete(key); else active.add(key);
+        apply();
+      });
+    });
+    sortSel.addEventListener('change',apply);
+    loadBtn.addEventListener('click',()=>{page++; apply();});
+
+    // init
+    render(ALL); // first page
+
+    document.getElementById('year').textContent=new Date().getFullYear();
+  </script>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Park City App — Rides, Babysitters, Ski Instructors</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pc-yellow:#ffcf56; --ink:#0e1012; --sub:#5b616a;
+    --line:#ececef; --card:#fff; --bg:#fafafa; --r:18px;
+    --shadow:0 10px 24px rgba(15,23,42,.06), 0 2px 6px rgba(15,23,42,.05);
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;font-family:"Lexend",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);}
+
+  /* Sticky, understated nav that sits on top of the hero */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:20;padding:14px 22px;}
+  .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+  .brand-badge{width:36px;height:36px;border-radius:50%;background:var(--pc-yellow);display:grid;place-items:center}
+  .nav-actions{display:flex;gap:10px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:999px;border:1px solid transparent;font-weight:600;cursor:pointer;transition:.18s ease;box-shadow:0 6px 14px rgba(0,0,0,.12)}
+  .btn-ghost{background:rgba(255,255,255,.85);backdrop-filter:saturate(1.2) blur(4px);color:#111;border-color:var(--line)}
+  .btn-primary{background:var(--pc-yellow);color:#111;border-color:#d9ad37}
+
+  /* FULL-PAGE HERO */
+  .hero{
+    position:relative; height:100vh; min-height:560px; color:#fff; overflow:hidden;
+    display:grid; place-items:center;
+  }
+  .hero-img{
+    position:absolute; inset:0; background:#000;
+    /* Park City Main Street (Unsplash placeholder) */
+    background-image:url('https://images.unsplash.com/photo-1549921296-3a6b2c9b1e3c?auto=format&fit=crop&w=2000&q=80');
+    background-size:cover; background-position:center;
+    transform:scale(1.03);
+  }
+  .hero::before{
+    /* dark vignette + warm brand tint */
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.35) 50%, rgba(0,0,0,.55)),
+               radial-gradient(1200px 480px at 10% -10%, rgba(255,207,86,.22), transparent 60%);
+    mix-blend-mode:normal;
+  }
+  .hero-inner{
+    position:relative; z-index:2; max-width:1100px; padding:24px; text-align:center;
+  }
+  .hero h1{margin:0 0 10px; font-size:clamp(30px,5.8vw,64px); letter-spacing:-.015em; text-shadow:0 2px 18px rgba(0,0,0,.35)}
+  .hero p{margin:8px auto 26px; max-width:760px; color:#f1f1f1; text-shadow:0 1px 10px rgba(0,0,0,.35)}
+  .quick-pills{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 24px}
+  .pill{border-radius:999px;border:1px solid rgba(255,255,255,.6);color:#fff;padding:10px 14px;background:rgba(0,0,0,.25);backdrop-filter:blur(6px);cursor:pointer}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+
+  /* Scroll cue */
+  .scroll-cue{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:2;color:#fff;opacity:.9;font-size:.95rem}
+  .mouse{width:22px;height:34px;border:2px solid rgba(255,255,255,.8);border-radius:12px;margin:6px auto 0;position:relative}
+  .wheel{width:3px;height:6px;background:#fff;border-radius:2px;position:absolute;left:50%;top:6px;transform:translateX(-50%);animation:wheel 1.8s ease-in-out infinite}
+  @keyframes wheel{0%{opacity:1;transform:translate(-50%,0)} 100%{opacity:0;transform:translate(-50%,8px)}}
+
+  /* BELOW THE FOLD */
+  main{background:var(--bg)}
+  .wrap{max-width:1100px;margin:0 auto;padding:32px 24px}
+  .section h2{margin:0 0 8px;font-size:clamp(22px,2.8vw,30px)}
+  .lead{color:var(--sub);margin:0 0 18px}
+  .grid{display:grid;gap:18px;grid-template-columns:repeat(12,1fr)}
+  .card{grid-column:span 12;background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+  .card .media{height:200px;background:#ddd;background-size:cover;background-position:center}
+  .card .inner{padding:18px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  @media (min-width:760px){.span-4{grid-column:span 4}}
+  .btn-out{background:#fff;border:1px solid var(--line);color:#111}
+  .btn-full{width:100%}
+
+  /* Accessibility: reduce motion */
+  @media (prefers-reduced-motion: reduce){
+    .wheel{animation:none}
+  }
+
+  /* Base hero stays full-viewport */
+.hero.is-slideshow { position: relative; height: 100vh; min-height: 560px; color: #fff; overflow: hidden; }
+.hero-inner { position: relative; z-index: 3; max-width: 1100px; padding: 24px; text-align: center; }
+.hero h1 { margin: 0 0 10px; font-size: clamp(30px,5.8vw,64px); letter-spacing: -.015em; text-shadow: 0 2px 18px rgba(0,0,0,.35); }
+.hero p  { margin: 8px auto 26px; max-width: 760px; color: #f1f1f1; text-shadow: 0 1px 10px rgba(0,0,0,.35); }
+
+/* Slide stack */
+.hero-slides { position: absolute; inset: 0; z-index: 1; }
+.hero-slide {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  opacity: 0; transition: opacity 900ms ease-in-out;
+  will-change: opacity;
+}
+.hero-slide.is-active { opacity: 1; }
+
+/* Base darkening (for text contrast) */
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: 2;
+  background: linear-gradient(180deg, rgba(0,0,0,.5), rgba(0,0,0,.35) 50%, rgba(0,0,0,.55));
+  pointer-events: none;
+}
+
+/* Gold warm overlay that subtly shifts on scroll */
+.hero-tint {
+  position: absolute; inset: -10% -10% -10% -10%; /* slight bleed for movement */
+  z-index: 2; pointer-events: none; mix-blend-mode: soft-light; opacity: .9;
+  background:
+    radial-gradient(800px 480px at 15% 10%, rgba(255,207,86,.28), rgba(255,207,86,0) 60%),
+    radial-gradient(900px 520px at 85% 0%,  rgba(255,207,86,.18), rgba(255,207,86,0) 62%);
+  transform: translate3d(0,0,0);
+  transition: opacity .2s ease;
+}
+
+/* Accessibility: reduce motion pauses fades/scroll effect */
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide { transition: none; }
+  .hero-tint   { transition: none; }
+}
+
+/* Keep your scroll cue styles from earlier */
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 18l7-10 4 6 3-4 4 8H3z"></path>
+        </svg>
+      </div>
+      <span>The Park City App</span>
+    </div>
+    <div class="nav-actions">
+      <a class="btn btn-ghost" href="#services">Services</a>
+      <a class="btn btn-primary" href="/download">Get the App</a>
+    </div>
+  </div>
+</nav>
+
+<!-- FULL-PAGE TOP OF FOLD -->
+<header class="hero is-slideshow" role="banner" aria-label="Park City Main Street">
+    <!-- Slides (first slide eager; others lazy via data-bg) -->
+    <div class="hero-slides" aria-hidden="true">
+      <div class="hero-slide is-active"
+           style="background-image:url('bg.png')"></div>
+  
+           <div class="hero-slide"
+           data-bg="oldtown.jpg"></div>
+     
+           <div class="hero-slide"
+           data-bg="skiier.jpg"></div>
+  
+    
+    </div>
+  
+    <!-- Warm brand overlay that shifts on scroll -->
+    <div class="hero-tint" aria-hidden="true"></div>
+  
+    <!-- Content -->
+    <div class="hero-inner">
+      <h1>Local rides, babysitters, and ski instructors — all in one app</h1>
+      <p>Top-rated locals. Upfront pricing. Instant booking. Built in Park City for Park City.</p>
+  
+      <div class="quick-pills" aria-label="Quick picks">
+        <button class="pill" data-open="ride">🚗 Book a Ride</button>
+        <button class="pill" data-open="babysitter">🍼 Find a Babysitter</button>
+        <button class="pill" data-open="ski">⛷️ Hire a Ski Instructor</button>
+      </div>
+  
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/book/ride">Start with a Ride</a>
+        <a class="btn btn-ghost" href="#services">Explore Services</a>
+      </div>
+    </div>
+  
+    <a class="scroll-cue" href="#services" aria-label="Scroll to services">
+      <div>See what’s inside</div>
+      <div class="mouse"><div class="wheel"></div></div>
+    </a>
+  </header>
+  
+  <!-- (Optional) Preload the first hero image for snappy paint -->
+  <link rel="preload" as="image"
+        href="https://images.unsplash.com/photo-1549921296-3a6b2c9b1e3c?auto=format&fit=crop&w=2000&q=80">
+  
+
+<!-- BELOW THE FOLD: Services (with photographic cards) -->
+<main>
+  <section id="services" class="wrap section">
+    <h2>Book a service</h2>
+    <p class="lead">Jump straight into a booking flow, or open an info screen first.</p>
+    <div class="grid">
+      <!-- Ride -->
+      <article class="card span-4">
+        <a class="media" href="/book/ride"
+           style="background-image:url('https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=1600&q=80')" aria-label="Book a Ride"></a>
+        <div class="inner">
+          <h3>Book a Ride</h3>
+          <p class="lead">Airport transfers and in-town rides with vetted local drivers.</p>
+          <div class="row">
+            <a class="btn btn-primary" href="/book/ride">Start Booking</a>
+            <button class="btn btn-out" data-open="ride">More Info</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Babysitter -->
+      <article class="card span-4">
+        <a class="media" href="/book/babysitter"
+           style="background-image:url('https://images.unsplash.com/photo-1587614382346-4ec39f4b4e4b?auto=format&fit=crop&w=1600&q=80')" aria-label="Find a Babysitter"></a>
+        <div class="inner">
+          <h3>Find a Babysitter</h3>
+          <p class="lead">Trusted local sitters with profiles, references, and availability.</p>
+          <div class="row">
+            <a class="btn btn-primary" href="/book/babysitter">Start Booking</a>
+            <button class="btn btn-out" data-open="babysitter">More Info</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Ski Instructor -->
+      <article class="card span-4">
+        <a class="media" href="/book/ski"
+           style="background-image:url('https://images.unsplash.com/photo-1516569422860-0f5af0bdf9f6?auto=format&fit=crop&w=1600&q=80')" aria-label="Hire a Ski Instructor"></a>
+        <div class="inner">
+          <h3>Hire a Ski Instructor</h3>
+          <p class="lead">Private lessons with experienced locals, tailored to your goals.</p>
+          <div class="row">
+            <a class="btn btn-primary" href="/book/ski">Start Booking</a>
+            <button class="btn btn-out" data-open="ski">More Info</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Optional: credibility strip -->
+  <section class="wrap section">
+    <div class="grid">
+      <article class="card">
+        <div class="inner">
+          <h3>Locally owned. Two years in business.</h3>
+          <p class="lead">We live here—and use these services ourselves. Safety and reliability are personal.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<!-- Minimal modal for Info/Embed (connect to your flows if you want) -->
+<div id="modal" style="position:fixed;inset:0;background:rgba(10,12,16,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:50">
+  <div role="dialog" aria-modal="true" aria-labelledby="mTitle"
+       style="background:#fff;border:1px solid var(--line);border-radius:16px;max-width:920px;width:100%;box-shadow:var(--shadow);overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line)">
+      <strong id="mTitle">Service</strong>
+      <button id="mClose" class="btn btn-out">Close</button>
+    </div>
+    <div style="padding:18px">
+      <h4 id="mHead" style="margin:0 0 8px">About this service</h4>
+      <p id="mCopy" style="color:var(--sub);margin:0 0 14px">Details about the selected service.</p>
+      <div class="row" style="margin-top:8px">
+        <a id="mCta" class="btn btn-primary" href="#" target="_blank" rel="noopener">Open booking</a>
+        <a id="mEmbed" class="btn btn-out" href="#" target="_blank" rel="noopener">Open embed</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Simple service map (swap with your URLs)
+  const SERVICE_META = {
+    ride:{ title:"Book a Ride", head:"Airport & local rides",
+      copy:"Reliable pickups to SLC Airport and around town. Upfront pricing, vetted local drivers.",
+      href:"/book/ride", embed:"/embed/ride" },
+    babysitter:{ title:"Find a Babysitter", head:"Trusted local sitters",
+      copy:"Profiles with references and availability for evenings or daytime help.",
+      href:"/book/babysitter", embed:"/embed/babysitter" },
+    ski:{ title:"Hire a Ski Instructor", head:"Private lessons that fit you",
+      copy:"Experienced local instructors for individuals and families.",
+      href:"/book/ski", embed:"/embed/ski" }
+  };
+
+  const modal = document.getElementById('modal');
+  const mTitle = document.getElementById('mTitle');
+  const mHead = document.getElementById('mHead');
+  const mCopy = document.getElementById('mCopy');
+  const mCta = document.getElementById('mCta');
+  const mEmbed = document.getElementById('mEmbed');
+  const mClose = document.getElementById('mClose');
+
+  function openModal(kind){
+    const meta = SERVICE_META[kind]; if(!meta) return;
+    mTitle.textContent = meta.title;
+    mHead.textContent = meta.head;
+    mCopy.textContent = meta.copy;
+    mCta.href = meta.href;
+    mEmbed.href = meta.embed;
+    modal.style.display = 'flex';
+  }
+  function closeModal(){ modal.style.display = 'none'; }
+
+  document.querySelectorAll('[data-open]').forEach(el=>{
+    el.addEventListener('click', ()=> openModal(el.dataset.open));
+  });
+  mClose.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.style.display==='flex') closeModal(); });
+</script>
+
+
+<script>
+    (function(){
+      const root = document.querySelector('.hero.is-slideshow');
+      if(!root) return;
+    
+      const slides = Array.from(root.querySelectorAll('.hero-slide'));
+      const tint   = root.querySelector('.hero-tint');
+    
+      let idx = 0;
+      const DURATION = 6000;           // ms per slide
+      let timer = null;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+      // Lazy-load helper: set backgroundImage when a slide is about to show
+      function ensureSlideLoaded(el){
+        const src = el.getAttribute('data-bg');
+        if(src && !el.dataset.loaded){
+          // Preload then swap to avoid flash
+          const img = new Image();
+          img.decoding = 'async';
+          img.onload = () => {
+            el.style.backgroundImage = `url('${src}')`;
+            el.dataset.loaded = '1';
+          };
+          img.src = src;
+        }
+      }
+    
+      function show(i){
+        slides.forEach((s,j)=> s.classList.toggle('is-active', j===i));
+      }
+    
+      function next(){
+        idx = (idx + 1) % slides.length;
+        ensureSlideLoaded(slides[idx]);           // load next slide if needed
+        show(idx);
+      }
+    
+      function start(){
+        // Preload the *next* slide quietly before first tick
+        ensureSlideLoaded(slides[(idx+1)%slides.length]);
+        if(reduceMotion) return;                  // honor reduced motion
+        stop();
+        timer = setInterval(next, DURATION);
+      }
+      function stop(){ if(timer){ clearInterval(timer); timer = null; } }
+    
+      // Pause when tab is hidden (save cycles)
+      document.addEventListener('visibilitychange', ()=> {
+        if(document.hidden) stop(); else start();
+      });
+    
+      // Start after first frame (DOM ready)
+      requestAnimationFrame(start);
+    
+      // Scroll-linked warm overlay movement (subtle parallax)
+      // Moves the gold gradients a bit as the hero scrolls out of view
+      const maxShift = 28; // px of movement
+      function onScroll(){
+        if(!tint) return;
+        const rect = root.getBoundingClientRect();
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        // progress: 1 when top-of-fold; 0 when hero completely off screen
+        const visible = Math.max(0, Math.min(1, 1 - Math.abs(rect.top) / vh));
+        const y = (1 - visible) * maxShift;      // move down as you scroll
+        tint.style.transform = `translate3d(0, ${y}px, 0)`;
+        tint.style.opacity = 0.75 + visible * 0.25; // slightly dim when scrolled
+      }
+    
+      // Thrifty scroll handler
+      let raf = null;
+      function schedule(){
+        if(raf) return;
+        raf = requestAnimationFrame(()=>{ raf = null; onScroll(); });
+      }
+      window.addEventListener('scroll', schedule, { passive: true });
+      window.addEventListener('resize', schedule);
+      onScroll();
+    
+      // Optional: also advance on click for demo/QA
+      root.addEventListener('click', (e)=>{
+        const isButton = e.target.closest('a,button');
+        if(isButton) return;
+        next();
+      });
+    })();
+    </script>
+    
+
+</body>
+</html>
