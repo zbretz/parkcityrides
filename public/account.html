@@ -336,26 +336,26 @@
         }
       }
       
-      // Ride type multipliers
-      let rideMultiplier = 1;
+      // Tier surcharges instead of multipliers
+      let tierSurcharge = 0;
       switch(rideType) {
         case 'premium':
-          rideMultiplier = 1.3; // 30% premium
+          tierSurcharge = 20.00; // +$20 for premium
           break;
         case 'xl':
-          rideMultiplier = 1.6; // 60% premium for XL
+          tierSurcharge = 40.00; // +$40 for XL
           break;
         default:
-          rideMultiplier = 1;
+          tierSurcharge = 0;
       }
       
-      // Calculate total: (base fare + late night surcharge) * ride multiplier
-      const totalFare = (baseFare + lateNightSurcharge) * rideMultiplier;
+      // Calculate total: base fare + late night surcharge + tier surcharge
+      const totalFare = baseFare + lateNightSurcharge + tierSurcharge;
       
       return {
         baseFare: baseFare,
-        rideMultiplier: rideMultiplier,
         lateNightSurcharge: lateNightSurcharge,
+        tierSurcharge: tierSurcharge,
         totalFare: totalFare,
         distanceMiles: distanceMiles
       };
@@ -450,6 +450,17 @@
           priceElement.textContent = `$${fare.totalFare.toFixed(0)}`;
         }
         
+        // Update prices on final step
+        const elementIdMap = {
+          'standard': 'finalStandardPrice',
+          'premium': 'finalPremiumPrice', 
+          'xl': 'finalXLPrice'
+        };
+        const finalPriceElement = document.getElementById(elementIdMap[rideType]);
+        if (finalPriceElement) {
+          finalPriceElement.textContent = `$${fare.totalFare.toFixed(0)}`;
+        }
+        
         // Update data attributes for final step
         const card = document.querySelector(`.opt[data-id="${rideType}"]`);
         if (card) {
@@ -472,15 +483,29 @@
       $('#pickupWhenLabel').textContent = fmtDate(when);
       $('#dropoffAddr').textContent = state.dropoff;
 
-      // Update final step prices
-      const rideTypes = ['standard', 'premium', 'xl'];
-      rideTypes.forEach(rideType => {
-        const fare = calculateFare(state.distance, state.when, rideType);
-        const priceElement = document.getElementById(`final${rideType.charAt(0).toUpperCase() + rideType.slice(1)}Price`);
-        if (priceElement) {
-          priceElement.textContent = `$${fare.totalFare.toFixed(0)}`;
-        }
-      });
+      // Update final step prices with a small delay to ensure DOM is ready
+      setTimeout(() => {
+        const rideTypes = ['standard', 'premium', 'xl'];
+        rideTypes.forEach(rideType => {
+          const fare = calculateFare(state.distance, state.when, rideType);
+          console.log(`hydrateFinal ${rideType} fare:`, fare);
+          
+          // Map ride types to correct element IDs
+          const elementIdMap = {
+            'standard': 'finalStandardPrice',
+            'premium': 'finalPremiumPrice', 
+            'xl': 'finalXLPrice'
+          };
+          
+          const priceElement = document.getElementById(elementIdMap[rideType]);
+          if (priceElement) {
+            priceElement.textContent = `$${fare.totalFare.toFixed(0)}`;
+            console.log(`Updated ${rideType} price element:`, priceElement);
+          } else {
+            console.log(`Price element not found for ${rideType}:`, elementIdMap[rideType]);
+          }
+        });
+      }, 100);
 
       // Preselect first option by default
       const pre = document.querySelector('.opt');
